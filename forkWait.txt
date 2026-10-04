@@ -1,0 +1,75 @@
+#include <iostream>
+#include <unistd.h>
+#include <sys/wait.h>
+using namespace std;
+
+void sortArray(int a[], int n)
+{
+    for(int i = 0; i < n - 1; i++)
+    {
+        for(int j = 0; j < n - i - 1; j++)
+        {
+            if(a[j] > a[j + 1])
+            {
+                swap(a[j], a[j + 1]);
+            }
+        }
+    }
+}
+
+void display(int a[], int n)
+{
+    for(int i = 0; i < n; i++)
+        cout << a[i] << " ";
+
+    cout << endl;
+}
+
+int main()
+{
+    int n;
+
+    cout << "Enter number of elements: ";
+    cin >> n;
+
+    int a[n];
+
+    cout << "Enter elements: ";
+    for(int i = 0; i < n; i++)
+        cin >> a[i];
+
+    pid_t pid = fork();
+
+    if(pid < 0)
+    {
+        cout << "Fork failed!" << endl;
+    }
+
+    else if(pid == 0)
+    {
+        // Child process
+        cout << "\nChild Process" << endl;
+
+        sortArray(a, n);
+
+        cout << "Child sorted array: ";
+        display(a, n);
+    }
+
+    else
+    {
+        // Parent process
+        cout << "\nParent Process" << endl;
+
+        sortArray(a, n);
+
+        cout << "Parent sorted array: ";
+        display(a, n);
+
+        wait(NULL);
+
+        cout << "Parent: Child process completed." << endl;
+    }
+
+    return 0;
+}

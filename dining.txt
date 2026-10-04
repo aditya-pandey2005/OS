@@ -1,0 +1,78 @@
+#include <iostream>
+#include <pthread.h>
+#include <semaphore.h>
+#include <unistd.h>
+
+using namespace std;
+
+#define N 5
+
+sem_t forkSem[N];
+sem_t room;
+
+void* philosopher(void* arg)
+{
+    int id = *(int*)arg;
+
+    cout << "Philosopher " << id << " is thinking." << endl;
+    sleep(1);
+
+    cout << "Philosopher " << id << " is hungry." << endl;
+
+    // Allow only 4 philosophers to try at the same time
+    sem_wait(&room);
+
+    // Pick left fork
+    sem_wait(&forkSem[id]);
+
+    // Pick right fork
+    sem_wait(&forkSem[(id + 1) % N]);
+
+    cout << "Philosopher " << id << " is eating." << endl;
+    sleep(2);
+
+    // Put down right fork
+    sem_post(&forkSem[(id + 1) % N]);
+
+    // Put down left fork
+    sem_post(&forkSem[id]);
+
+    cout << "Philosopher " << id << " finished eating." << endl;
+
+    // Leave the room
+    sem_post(&room);
+
+    return NULL;
+}
+
+int main()
+{
+    pthread_t threads[N];
+    int id[N];
+
+    // Initialize fork semaphores
+    for(int i = 0; i < N; i++)
+        sem_init(&forkSem[i], 0, 1);
+
+    // Only 4 philosophers can enter
+    sem_init(&room, 0, N - 1);
+
+    // Create philosopher threads
+    for(int i = 0; i < N; i++)
+    {
+        id[i] = i;
+        pthread_create(&threads[i], NULL, philosopher, &id[i]);
+    }
+
+    // Wait for all philosophers
+    for(int i = 0; i < N; i++)
+        pthread_join(threads[i], NULL);
+
+    // Destroy semaphores
+    for(int i = 0; i < N; i++)
+        sem_destroy(&forkSem[i]);
+
+    sem_destroy(&room);
+
+    return 0;
+}

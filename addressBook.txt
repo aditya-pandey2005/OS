@@ -1,0 +1,85 @@
+#!/bin/bash
+
+file="addressbook.txt"
+
+while true
+do
+    echo "-----------------------------"
+    echo "       ADDRESS BOOK"
+    echo "-----------------------------"
+    echo "1. Create Address Book"
+    echo "2. View Address Book"
+    echo "3. Insert Record"
+    echo "4. Delete Record"
+    echo "5. Modify Record"
+    echo "6. Exit"
+    echo "-----------------------------"
+
+    read -p "Enter your choice: " ch
+
+    case $ch in
+
+    1)
+        touch "$file"
+        echo "Address book created successfully."
+        ;;
+
+    2)
+        echo "----- Address Book -----"
+        if [ -s "$file" ]
+        then
+            cat "$file"
+        else
+            echo "Address book is empty."
+        fi
+        ;;
+
+    3)
+        read -p "Enter Name: " name
+        read -p "Enter Phone: " phone
+        read -p "Enter Email: " email
+
+        echo "$name | $phone | $email" >> "$file"
+
+        echo "Record inserted successfully."
+        ;;
+
+    4)
+        read -p "Enter Name to delete: " name
+
+        grep -v "^$name |" "$file" > temp.txt
+        mv temp.txt "$file"
+
+        echo "Record deleted successfully."
+        ;;
+
+    5)
+        read -p "Enter Name to modify: " oldname
+
+        if grep -q "^$oldname |" "$file"
+        then
+            read -p "Enter New Name: " newname
+            read -p "Enter New Phone: " newphone
+            read -p "Enter New Email: " newemail
+
+            sed -i "s/^$oldname |.*/$newname | $newphone | $newemail/" "$file"
+
+            echo "Record modified successfully."
+        else
+            echo "Record not found."
+        fi
+        ;;
+
+    6)
+        echo "Exiting..."
+        exit
+        ;;
+
+    *)
+        echo "Invalid choice!"
+        ;;
+
+    esac
+
+    echo
+done

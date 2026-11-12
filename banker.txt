@@ -138,3 +138,22 @@ int main()
 
     return 0;
 }
+
+
+
+I/P:
+allocation:
+010
+200
+302
+211
+002
+maxNeed:
+753
+322
+902
+422
+533
+available: 332
+
+bankers algorithm- deadlock avoid, resource allocation, checks whether granting resource request keeps the system in safe state
